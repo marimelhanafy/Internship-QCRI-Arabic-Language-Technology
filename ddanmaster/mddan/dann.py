@@ -1,18 +1,22 @@
-import tensorflow as tf
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 import numpy as np
 import pandas as pd
 from sklearn.metrics import log_loss, roc_auc_score
 from tensorflow.python.framework import ops
-from tensorflow.python.keras import backend as K
-from tensorflow.python.keras.layers import Dense, Dropout, Activation
-from tensorflow.python.keras.layers import GaussianNoise
-#from keras.layers.normalization import BatchNormalization
-from tensorflow.python.keras.layers import normalization
+from tensorflow.compat.v1.keras import backend as K
+from tensorflow.compat.v1.keras.layers import Dense, Dropout, Activation
+from tensorflow.compat.v1.keras.layers import GaussianNoise
+from tensorflow.compat.v1.keras.layers import BatchNormalization
 #from keras.layers.advanced_activations import PReLU, ELU, LeakyReLU
-from tensorflow.python.keras import layers
-from tensorflow.python.keras import activations
-from utils import shuffle_aligned_list, batch_gen, val_batch_gen
-from tensorflow.python.keras.regularizers import l1_l2, l1, l2
+from tensorflow.compat.v1.keras import layers
+from tensorflow.compat.v1.keras import activations
+from mddan.utils import shuffle_aligned_list, batch_gen, val_batch_gen
+from tensorflow.compat.v1.keras.regularizers import l1_l2, l1, l2
 
 ''' Domain-adversarial neural network (https://arxiv.org/pdf/1505.07818.pdf)
 Some parts of this code were inspired by https://github.com/pumpikano/tf-dann. '''
@@ -73,7 +77,7 @@ class DANNModel(object):
                 network += [GaussianNoise(noise)(network[-1])]
 
             elif nunits == 'bn':
-                network += [normalization.BatchNormalization()(network[-1])]
+                network += [BatchNormalization()(network[-1])]
 
             elif nunits == 'drop':
                 network += [Dropout(droprate)(network[-1])]
@@ -110,12 +114,13 @@ class DANNModel(object):
         else:
             # if we are training here we use only the first half of the
             # the batch (corresponding to labelled source data)..
+            print("DT:",type(self.batch_size),self.batch_size)
             select_feat = tf.cond(self.train,
-                lambda: tf.slice(full_feat[-1], [0, 0], [self.batch_size/2, -1]),
+                lambda: tf.slice(full_feat[-1], [0, 0], [self.batch_size//2, -1]),
                 lambda: full_feat[-1])
     
             select_y = tf.cond(self.train,
-                lambda: tf.slice(self.y, [0, 0], [self.batch_size/2, -1]),
+                lambda: tf.slice(self.y, [0, 0], [self.batch_size//2, -1]),
                 lambda: self.y)
 
         grl = flip_gradient(full_feat[-1], self.l)

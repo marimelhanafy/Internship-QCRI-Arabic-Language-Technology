@@ -1,12 +1,11 @@
 import sys
-sys.path.insert(0, 'D:\Downloads\internship QCRI\ddanmaster\mddan')
-import dann
-from dann import DANNModel
+import mddan #mdann
+from mddan.dann import DANNModel
 from sklearn.datasets import make_blobs
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from data import *
 
 # plot training (source and target) data
